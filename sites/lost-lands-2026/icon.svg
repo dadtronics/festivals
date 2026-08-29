@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#14110c"/>
+
+  <!-- back spikes -->
+  <polygon points="108,222 128,170 148,222" fill="#ff7a1e"/>
+  <polygon points="142,196 162,146 182,198" fill="#ff7a1e"/>
+  <polygon points="178,184 198,138 218,188" fill="#ff7a1e"/>
+
+  <!-- head + snout -->
+  <ellipse cx="210" cy="292" rx="122" ry="96" fill="#ff7a1e"/>
+  <ellipse cx="347" cy="306" rx="76" ry="50" fill="#ff7a1e"/>
+
+  <!-- little tooth -->
+  <polygon points="392,342 406,342 399,362" fill="#f0e6d4"/>
+
+  <!-- mouth line -->
+  <path d="M 240 348 Q 320 366 404 336" stroke="#14110c" stroke-width="10" fill="none" stroke-linecap="round"/>
+
+  <!-- eye + nostril -->
+  <circle cx="252" cy="256" r="17" fill="#14110c"/>
+  <circle cx="257" cy="251" r="6" fill="#f0e6d4"/>
+  <circle cx="398" cy="298" r="8" fill="#14110c"/>
+</svg>

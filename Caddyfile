@@ -1,0 +1,15 @@
+:80 {
+	root * /srv
+	encode gzip zstd
+	file_server
+
+	# The service worker and app shell should always revalidate so phones
+	# pick up updates promptly. The service worker does its own offline
+	# caching client-side — this is just about the HTTP layer not adding a
+	# second, harder-to-bust cache on top of it.
+	@no_cache path *.js *.html *manifest.json
+	header @no_cache Cache-Control "no-cache"
+
+	@icons path *.png *.svg
+	header @icons Cache-Control "public, max-age=604800, immutable"
+}

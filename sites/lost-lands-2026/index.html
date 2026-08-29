@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lost Lands 2026</title>
+<meta name="description" content="Pick favorites from the Lost Lands lineup, then import set times to auto-flag conflicts and build the best non-overlapping schedule.">
+<meta name="theme-color" content="#14110c">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lost Lands">
+
+<style>
+  :root {
+    --font-display: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+
+    --bg: #ece3d0;
+    --surface: #f8f3e8;
+    --surface-2: #e2d5b9;
+    --border: #cabb99;
+    --text: #2a2116;
+    --text-muted: #6c5c44;
+    --accent: #d9480f;
+    --accent-ink: #fff7ee;
+    --stage-prehistoric: #b3394a;
+    --stage-wompy: #3f7d54;
+    --stage-subsidia: #4d6f96;
+    --stage-crater: #8a63ad;
+    --stage-raptor: #1f7a8c;
+    --stage-forest: #6a8f1f;
+    --stage-tbd: #8a7c62;
+    --danger: #b3394a;
+    --shadow: 0 8px 24px -12px rgba(20, 15, 5, 0.35);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14110c;
+      --surface: #1c1811;
+      --surface-2: #262016;
+      --border: #3c3223;
+      --text: #f0e6d4;
+      --text-muted: #a8987d;
+      --accent: #ff7a1e;
+      --accent-ink: #1c1006;
+      --stage-prehistoric: #e0697a;
+      --stage-wompy: #6cb888;
+      --stage-subsidia: #82a6d1;
+      --stage-crater: #bd97e0;
+      --stage-raptor: #4fc3d9;
+      --stage-forest: #a3d94f;
+      --stage-tbd: #7c705a;
+      --danger: #e0697a;
+      --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #14110c;
+    --surface: #1c1811;
+    --surface-2: #262016;
+    --border: #3c3223;
+    --text: #f0e6d4;
+    --text-muted: #a8987d;
+    --accent: #ff7a1e;
+    --accent-ink: #1c1006;
+    --stage-prehistoric: #e0697a;
+    --stage-wompy: #6cb888;
+    --stage-subsidia: #82a6d1;
+    --stage-crater: #bd97e0;
+    --stage-raptor: #4fc3d9;
+    --stage-forest: #a3d94f;
+    --stage-tbd: #7c705a;
+    --danger: #e0697a;
+    --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 18px 64px;
+  }
+
+  /* ---------- header ---------- */
+  .topbar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 28px 0 18px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .brand-mark {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(1.9rem, 7vw, 2.9rem);
+    letter-spacing: -0.01em;
+    line-height: 0.95;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .brand-sub {
+    display: block;
+    margin-top: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+  }
+
+  .countdown {
+    text-align: right;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
+  .countdown strong {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 2rem;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+
+  /* ---------- tabs ---------- */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin: 18px 0 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tab {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.92rem;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    padding: 10px 4px;
+    margin-right: 22px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    position: relative;
+    top: 1px;
+  }
+
+  .tab.active {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+  }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ---------- roster controls ---------- */
+  .roster-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  #search, #day-filter {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    padding: 10px 12px;
+    border-radius: 3px;
+  }
+
+  #search { flex: 1 1 220px; }
+  #day-filter { flex: 0 0 auto; }
+
+  #search:focus-visible, #day-filter:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .roster-stats {
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .roster-stats b { color: var(--accent); font-weight: 500; }
+
+  .filter-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .chip {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 6px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+
+  .chip.active {
+    color: var(--accent-ink);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* ---------- roster grid ---------- */
+  .roster-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 10px;
+  }
+
+  .artist-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+    transition: border-color 0.15s ease;
+  }
+
+  .artist-card:hover { border-color: var(--accent); }
+
+  .artist-card.interest-1 { border-color: var(--text-muted); }
+  .artist-card.interest-2 { border-color: var(--accent); box-shadow: var(--shadow); }
+
+  .artist-main { min-width: 0; }
+
+  .artist-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .artist-stage {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+
+  .stage-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--stage-tbd);
+    flex-shrink: 0;
+  }
+
+  .star-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    padding: 6px 9px;
+    border-radius: 3px;
+    cursor: pointer;
+    flex-shrink: 0;
+    min-width: 78px;
+    text-align: center;
+  }
+
+  .star-btn[data-level="1"] { color: var(--text); border-color: var(--text-muted); }
+  .star-btn[data-level="2"] { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); font-weight: 500; }
+
+  /* ---------- add artists ---------- */
+  .add-artists {
+    margin-top: 22px;
+    border: 1px dashed var(--border);
+    padding: 12px 14px;
+    border-radius: 3px;
+  }
+
+  .add-artists summary {
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-muted);
+  }
+
+  .add-artists textarea, .schedule-import textarea {
+    width: 100%;
+    margin-top: 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    padding: 10px;
+    border-radius: 3px;
+    min-height: 90px;
+    resize: vertical;
+  }
+
+  .btn {
+    margin-top: 10px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    border: none;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 9px 16px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+
+  .btn.ghost {
+    background: none;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+
+  /* ---------- schedule panel ---------- */
+  .empty-state {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 22px;
+    border-radius: 3px;
+  }
+
+  .empty-state h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.5rem;
+    margin: 0 0 8px;
+    text-transform: uppercase;
+  }
+
+  .empty-state p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    max-width: 60ch;
+  }
+
+  .schedule-import { margin-top: 16px; }
+
+  .format-hint {
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    background: var(--surface-2);
+    padding: 8px 10px;
+    border-radius: 3px;
+    margin-top: 8px;
+    overflow-x: auto;
+  }
+
+  .day-block { margin-bottom: 30px; }
+
+  .day-heading {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.4rem;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+  }
+
+  .day-heading span {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    text-transform: none;
+  }
+
+  .set-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 12px;
+    border-left: 3px solid var(--stage-tbd);
+    background: var(--surface);
+    margin-bottom: 6px;
+    border-radius: 0 3px 3px 0;
+  }
+
+  .set-row .time {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    min-width: 108px;
+  }
+
+  .set-row .who { font-weight: 600; font-size: 0.92rem; flex: 1; }
+  .set-row .where {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .set-row.picked { outline: 1px solid var(--accent); }
+  .set-row .badge {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    background: var(--accent);
+    color: var(--accent-ink);
+    padding: 2px 6px;
+    border-radius: 2px;
+  }
+
+  .conflict-group {
+    border: 1px solid var(--danger);
+    border-radius: 3px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+  }
+
+  .conflict-group .conflict-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    color: var(--danger);
+    margin-bottom: 6px;
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-muted);
+    margin: 18px 0 8px;
+  }
+
+  .offline-badge {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 14px 0 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="topbar">
+    <div>
+      <span class="brand-mark">Lost Lands</span>
+      <span class="brand-sub">Sept 18–20, 2026 · Legend Valley, Thornville OH</span>
+    </div>
+    <div class="countdown" id="countdown"></div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="roster">Lineup</button>
+    <button class="tab" data-tab="schedule">My Schedule</button>
+  </nav>
+
+  <main>
+    <section id="roster-panel" class="panel active">
+      <div class="roster-controls">
+        <input id="search" type="text" placeholder="Search artists…" autocomplete="off">
+        <select id="day-filter"></select>
+        <div class="roster-stats" id="roster-stats"></div>
+      </div>
+      <div class="filter-row" id="filter-row"></div>
+      <div class="roster-grid" id="roster-grid"></div>
+
+      <details class="add-artists">
+        <summary>Add an artist not on this list</summary>
+        <p style="font-size:0.82rem; color:var(--text-muted); margin:8px 0 0;">
+          Seeded from the official Wed–Sun poster and all six stage posters (~190 acts). If Excision announces anyone late, add them here — they'll show up tagged "Day TBD" until you know when they play.
+        </p>
+        <textarea id="add-artists-input" placeholder="e.g. Ternion Sound, Barely Alive, Boogie T"></textarea>
+        <button class="btn" id="add-artists-btn">Add to lineup</button>
+      </details>
+    </section>
+
+    <section id="schedule-panel" class="panel">
+      <div id="schedule-content"></div>
+    </section>
+  </main>
+
+  <div class="offline-badge" id="offline-badge"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var STORAGE_KEY = "lostlands2026.v1";
+
+  var DAY_META = {
+    wed: { label: "Wednesday", sub: "Sep 16 · Pre-Party" },
+    thu: { label: "Thursday", sub: "Sep 17 · Pre-Party" },
+    fri: { label: "Friday", sub: "Sep 18" },
+    sat: { label: "Saturday", sub: "Sep 19" },
+    sun: { label: "Sunday", sub: "Sep 20" },
+    tbd: { label: "Day TBD", sub: "" }
+  };
+  var DAY_ORDER = ["wed", "thu", "fri", "sat", "sun", "tbd"];
+
+  var SEED_BY_DAY = {
+    wed: [
+      "Barely Alive", "Calcium B2B Mad Dubz", "Caspa", "Chassi", "Distinct Motive",
+      "Emorfik B2B Usaybflow", "Gardella", "Hairitage", "Hershe", "Hydraulix",
+      "Izzy Vadim", "Jaenga", "Mile32", "Mport", "Muerte", "Nikita the Wicked",
+      "Riot Ten", "Smoakland"
+    ],
+    thu: [
+      "Alienpark", "Deadcrow", "Dirt Monkey", "FuntCase", "Machaki", "Mindset",
+      "PHRVA", "RSUN", "RZRKT", "Super Future", "Zen Selekta"
+    ],
+    fri: [
+      "$J", "Austeria", "Badklaat", "BassTripper", "Bear Grillz", "Benda", "Borgore",
+      "Canabliss", "Casey Club", "Crizzly", "Dion Timmer", "Dirtysnatcha", "Doctor P",
+      "Dodge & Fuski", "Dr. Ushuu", "Drinkurwater", "Dubscribe", "Excision (2 Hour Set)",
+      "Future Exit", "HOL!", "Infekt B2B Samplifire", "Ivy Lab", "Izadi", "Jantsen",
+      "JKyL & HyDe", "Kliptic", "KLO", "Lazrus", "Levity", "Liquid Stranger", "Lumasi",
+      "Neumonic", "NGHTMRE", "Nimda", "Oliverse", "Paper Skies", "Pegboard Nerds",
+      "Poni", "ProbCause", "Ravenscoon", "Reaper", "Richard Finger", "Riot",
+      "Seth David", "Shlump", "Sigma", "Sippy", "Subsonic", "Sullivan King B2B Ray Volpe",
+      "The Resistance", "TwoPercent", "Tynan", "Vampa", "VKTM", "The Widdler", "Wiley",
+      "Wooli (Sunset Set)", "Xotix", "Yookie", "Zero"
+    ],
+    sat: [
+      "2Dy4", "Aeon:Mode B2B Blossom", "All the Reason", "Au5", "Audiofreq",
+      "Bella Renee", "Big Florida", "Bou", "Brainrack", "Capochino", "Chozen",
+      "Craze B2B Dieselboy", "Crumb Pit", "Cyclops", "Darksiderz B2B Madgrrl",
+      "Delta Heavy", "Dirtyphonics", "Dr. Fresch", "Effin", "Flosstradamus",
+      "Flux Pavilion", "Ganja White Night", "Ghengar", "Gladde Paling", "Green Matter",
+      "Hedex", "Heyz", "HVDES", "ILLENIUM", "Imanu", "Ivory", "Jessica Audiffred",
+      "Josh Teed", "Kai Wachi", "Layz", "Leotrix", "Lil Texas", "Lowcation",
+      "Mefjus + Daxta MC", "Mozey", "Myrias", "MYTHM", "Neotek", "Noetika", "PhaseOne",
+      "Prosecute", "Saint Miller", "Seven Lions (Sunset Set)", "SLANDER", "Space Wizard",
+      "Stoned Level", "Subtronics B2B Level Up", "Tisoki", "Truth", "Tokyo Machine",
+      "Whales", "Whethan", "WRAZ", "Zingara", "Zomboy"
+    ],
+    sun: [
+      "Adventure Club (Throwback Set)", "Arlo", "ARMNHMR", "ATLIENS (Sunset Set)", "Avello",
+      "Boogie T", "Champagne Drip", "Codd Dubz", "Crankdat B2B Alleycvt",
+      "Crystal Skies", "Distant Matter", "Dream Takers", "Eptic B2B Lyny",
+      "Excision (Detox Set)", "Excision B2B Space Laces", "Finnuh", "Ghastly", "Grabbitz",
+      "HALIENE", "Hostage Situation", "Hurtbox", "Killmatter", "Know Good", "Kompany",
+      "Krewella", "Luci", "Mad Dubz", "Modal Nodes", "OG Nixin", "ONARA", "Passport",
+      "Pretty Sweet", "REMK", "Roi*", "Ryns", "Sisto", "Skilah", "SoDown", "Sportmode",
+      "Sqishi", "Stumpi", "Taiki Nulight", "Trivecta", "Usaybflow", "Virtual Riot",
+      "Warlord", "Wax Motif", "William Black", "Wonkywilla", "Yetep", "YVM3", "Zoey808"
+    ]
+  };
+
+  var STAGES = ["Prehistoric Stage", "Wompy Woods", "Subsidia Stage", "The Crater", "Raptor Alley", "Forest Stage"];
+  var STAGE_VAR = {
+    "Prehistoric Stage": "--stage-prehistoric",
+    "Wompy Woods": "--stage-wompy",
+    "Subsidia Stage": "--stage-subsidia",
+    "The Crater": "--stage-crater",
+    "Raptor Alley": "--stage-raptor",
+    "Forest Stage": "--stage-forest"
+  };
+
+  // Confirmed from the six official per-stage lineup posters (stage known, set time not yet).
+  var STAGE_ROSTERS = {
+    "Prehistoric Stage": [
+      "ATLIENS (Sunset Set)", "Avello", "Capochino", "Crankdat B2B Alleycvt", "Effin",
+      "Excision (2 Hour Set)", "Excision B2B Space Laces", "Flux Pavilion", "Grabbitz",
+      "Heyz", "HOL!", "ILLENIUM", "Infekt B2B Samplifire", "Jessica Audiffred",
+      "JKyL & HyDe", "Kai Wachi", "Kompany", "Levity", "Mad Dubz", "Neotek",
+      "Ravenscoon", "Seth David", "SLANDER", "Sullivan King B2B Ray Volpe", "Tynan",
+      "Usaybflow", "Zomboy"
+    ],
+    "Raptor Alley": [
+      "Audiofreq", "BassTripper", "Darksiderz B2B Madgrrl", "Gladde Paling",
+      "Killmatter", "Lil Texas", "Reaper", "REMK", "Sigma", "Sportmode", "Subsonic"
+    ],
+    "Subsidia Stage": [
+      "$J", "Au5", "Casey Club", "Chozen", "Dubscribe", "Finnuh", "Future Exit",
+      "Green Matter", "Hostage Situation", "Hurtbox", "Izadi", "Josh Teed", "Kliptic",
+      "KLO", "Lazrus", "Leotrix", "Lowcation", "Modal Nodes", "Myrias", "MYTHM",
+      "Neumonic", "Nimda", "Noetika", "OG Nixin", "ONARA", "Poni", "Roi*",
+      "Saint Miller", "Sisto", "Sqishi", "Tokyo Machine", "Truth", "Vampa", "Warlord",
+      "WRAZ", "YVM3", "Zero"
+    ],
+    "Forest Stage": [
+      "Aeon:Mode B2B Blossom", "Arlo", "Austeria", "Bella Renee", "Bou", "Canabliss",
+      "Craze B2B Dieselboy", "Crumb Pit", "Delta Heavy", "Dirtyphonics",
+      "Distant Matter", "Dr. Ushuu", "Ghastly", "Hedex", "Imanu", "Ivy Lab",
+      "Jantsen", "Lumasi", "Mefjus + Daxta MC", "Mozey", "Passport", "ProbCause",
+      "Richard Finger", "Ryns", "Shlump", "Skilah", "Stumpi", "Taiki Nulight",
+      "TwoPercent", "Wax Motif", "Wiley", "Xotix", "Zoey808"
+    ],
+    "The Crater": [
+      "2Dy4", "Alienpark", "Badklaat", "Barely Alive", "Bear Grillz", "Borgore",
+      "Calcium B2B Mad Dubz", "Champagne Drip", "Chassi", "Codd Dubz", "Crizzly",
+      "Cyclops", "Deadcrow", "Doctor P", "Dirtysnatcha", "Dr. Fresch",
+      "Emorfik B2B Usaybflow", "Flosstradamus", "FuntCase", "Izzy Vadim", "Krewella",
+      "Layz", "Luci", "Machaki", "Mile32", "Muerte", "Pegboard Nerds", "Pretty Sweet",
+      "Prosecute", "Riot Ten", "RZRKT", "SoDown", "Stoned Level", "Trivecta",
+      "Whales", "Whethan", "The Widdler", "William Black"
+    ],
+    "Wompy Woods": [
+      "Adventure Club (Throwback Set)", "All the Reason", "ARMNHMR", "Benda",
+      "Big Florida", "Boogie T", "Brainrack", "Crystal Skies", "Dion Timmer",
+      "Dream Takers", "Drinkurwater", "Eptic B2B Lyny", "Excision (Detox Set)",
+      "Ganja White Night", "Ghengar", "HALIENE", "HVDES", "Ivory", "Know Good",
+      "Liquid Stranger", "NGHTMRE", "Oliverse", "Paper Skies", "PhaseOne", "Riot",
+      "Seven Lions (Sunset Set)", "Sippy", "Space Wizard", "Subtronics B2B Level Up",
+      "The Resistance", "Tisoki", "Virtual Riot", "VKTM", "Wonkywilla",
+      "Wooli (Sunset Set)", "Yetep", "Yookie", "Zingara"
+    ]
+  };
+
+  var STAGE_BY_ARTIST = {};
+  Object.keys(STAGE_ROSTERS).forEach(function (stage) {
+    STAGE_ROSTERS[stage].forEach(function (name) {
+      STAGE_BY_ARTIST[name.toLowerCase()] = stage;
+    });
+  });
+
+  var LEVEL_LABEL = ["Add", "Interested ★", "Must-see ★★"];
+
+  // ---------- state ----------
+  function loadState() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return { interest: {}, customArtists: [], schedule: null };
+  }
+
+  var state = loadState();
+  if (!state.interest) state.interest = {};
+  if (!state.customArtists) state.customArtists = [];
+
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  function allArtists() {
+    var seen = {};
+    var out = [];
+    DAY_ORDER.forEach(function (day) {
+      (SEED_BY_DAY[day] || []).forEach(function (name) {
+        var key = name.trim().toLowerCase();
+        if (!key || seen[key]) return;
+        seen[key] = true;
+        out.push({ name: name.trim(), day: day });
+      });
+    });
+    state.customArtists.forEach(function (name) {
+      var key = name.trim().toLowerCase();
+      if (!key || seen[key]) return;
+      seen[key] = true;
+      out.push({ name: name.trim(), day: "tbd" });
+    });
+    out.sort(function (a, b) { return a.name.localeCompare(b.name); });
+    return out;
+  }
+
+  function artistStageInfo(name) {
+    if (!state.schedule) return null;
+    var key = name.trim().toLowerCase();
+    for (var day in state.schedule) {
+      var sets = state.schedule[day];
+      for (var i = 0; i < sets.length; i++) {
+        if (sets[i].artist.trim().toLowerCase() === key) return sets[i];
+      }
+    }
+    return null;
+  }
+
+  function confirmedStage(name) {
+    return STAGE_BY_ARTIST[name.trim().toLowerCase()] || null;
+  }
+
+  // ---------- countdown ----------
+  function renderCountdown() {
+    var target = new Date("2026-09-18T12:00:00");
+    var now = new Date();
+    var days = Math.ceil((target - now) / 86400000);
+    var el = document.getElementById("countdown");
+    if (days > 0) {
+      el.innerHTML = "<strong>" + days + "</strong>days to gates";
+    } else if (days === 0) {
+      el.innerHTML = "<strong>Today</strong>gates open";
+    } else {
+      el.innerHTML = "<strong>Live</strong>Sept 18–20";
+    }
+  }
+
+  // ---------- roster ----------
+  var currentFilter = "all";
+  var currentDay = "all";
+
+  function renderDayFilter() {
+    var sel = document.getElementById("day-filter");
+    var opts = ['<option value="all">All days</option>'];
+    DAY_ORDER.forEach(function (d) {
+      opts.push('<option value="' + d + '">' + DAY_META[d].label + '</option>');
+    });
+    sel.innerHTML = opts.join("");
+    sel.value = currentDay;
+    sel.addEventListener("change", function () {
+      currentDay = sel.value;
+      renderRoster();
+    });
+  }
+
+  function renderFilters() {
+    var row = document.getElementById("filter-row");
+    var filters = [
+      ["all", "All"],
+      ["picked", "My picks"],
+      ["must", "Must-see"]
+    ];
+    row.innerHTML = "";
+    filters.forEach(function (f) {
+      var b = document.createElement("button");
+      b.className = "chip" + (currentFilter === f[0] ? " active" : "");
+      b.textContent = f[1];
+      b.addEventListener("click", function () {
+        currentFilter = f[0];
+        renderFilters();
+        renderRoster();
+      });
+      row.appendChild(b);
+    });
+  }
+
+  function renderRoster() {
+    var grid = document.getElementById("roster-grid");
+    var q = document.getElementById("search").value.trim().toLowerCase();
+    var artists = allArtists();
+
+    var must = 0, interested = 0;
+    artists.forEach(function (a) {
+      var lvl = state.interest[a.name.toLowerCase()] || 0;
+      if (lvl === 2) must++; else if (lvl === 1) interested++;
+    });
+    document.getElementById("roster-stats").innerHTML =
+      artists.length + " acts &middot; <b>" + must + "</b> must-see &middot; <b>" + interested + "</b> interested";
+
+    grid.innerHTML = "";
+    artists.forEach(function (a) {
+      var name = a.name;
+      var key = name.toLowerCase();
+      var lvl = state.interest[key] || 0;
+
+      if (q && name.toLowerCase().indexOf(q) === -1) return;
+      if (currentFilter === "picked" && lvl === 0) return;
+      if (currentFilter === "must" && lvl !== 2) return;
+      if (currentDay !== "all" && a.day !== currentDay) return;
+
+      var sched = artistStageInfo(name);
+      var stageKnown = sched ? sched.stage : confirmedStage(name);
+
+      var card = document.createElement("div");
+      card.className = "artist-card interest-" + lvl;
+
+      var main = document.createElement("div");
+      main.className = "artist-main";
+
+      var nameEl = document.createElement("div");
+      nameEl.className = "artist-name";
+      nameEl.textContent = name;
+      main.appendChild(nameEl);
+
+      var stageEl = document.createElement("div");
+      stageEl.className = "artist-stage";
+      var dot = document.createElement("span");
+      dot.className = "stage-dot";
+      if (stageKnown) dot.style.background = "var(" + (STAGE_VAR[stageKnown] || "--stage-tbd") + ")";
+      stageEl.appendChild(dot);
+      var stageText = document.createElement("span");
+      var dayLabel = DAY_META[a.day] ? DAY_META[a.day].label.slice(0, 3).toUpperCase() : "TBD";
+      var detail = sched ? (sched.stage + " · " + sched.start) : (stageKnown ? (stageKnown + " · time TBD") : "stage TBD");
+      stageText.textContent = dayLabel + " · " + detail;
+      stageEl.appendChild(stageText);
+      main.appendChild(stageEl);
+
+      card.appendChild(main);
+
+      var btn = document.createElement("button");
+      btn.className = "star-btn";
+      btn.type = "button";
+      btn.setAttribute("data-level", String(lvl));
+      btn.textContent = LEVEL_LABEL[lvl];
+      btn.addEventListener("click", function () {
+        var next = (lvl + 1) % 3;
+        state.interest[key] = next;
+        save();
+        renderRoster();
+        if (document.getElementById("schedule-panel").classList.contains("active")) renderSchedule();
+      });
+      card.appendChild(btn);
+
+      grid.appendChild(card);
+    });
+  }
+
+  document.getElementById("search").addEventListener("input", renderRoster);
+
+  document.getElementById("add-artists-btn").addEventListener("click", function () {
+    var ta = document.getElementById("add-artists-input");
+    var names = ta.value.split(/[\n,]/).map(function (s) { return s.trim(); }).filter(Boolean);
+    if (!names.length) return;
+    state.customArtists = state.customArtists.concat(names);
+    save();
+    ta.value = "";
+    renderRoster();
+  });
+
+  // ---------- schedule import & parsing ----------
+  function parseScheduleCSV(text) {
+    var lines = text.split("\n").map(function (l) { return l.trim(); }).filter(Boolean);
+    var byDay = {};
+    lines.forEach(function (line) {
+      var parts = line.split(",").map(function (s) { return s.trim(); });
+      if (parts.length < 5) return;
+      var artistLower = parts[0].toLowerCase();
+      if (artistLower === "artist") return; // header row
+      var day = parts[1], stage = parts[2], start = parts[3], end = parts[4];
+      var startMin = toMinutes(start);
+      var endMin = toMinutes(end);
+      if (startMin === null || endMin === null) return;
+      if (endMin <= startMin) endMin += 1440;
+      if (!byDay[day]) byDay[day] = [];
+      byDay[day].push({ artist: parts[0], stage: stage, start: start, end: end, startMin: startMin, endMin: endMin });
+    });
+    return Object.keys(byDay).length ? byDay : null;
+  }
+
+  function toMinutes(hhmm) {
+    var m = /^(\d{1,2}):(\d{2})$/.exec(hhmm);
+    if (!m) return null;
+    return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+  }
+
+  // ---------- weighted interval scheduling ----------
+  function optimizeDay(sets) {
+    var sorted = sets.slice().sort(function (a, b) { return a.endMin - b.endMin; });
+    var n = sorted.length;
+    var dp = new Array(n + 1).fill(0);
+    var take = new Array(n + 1).fill(false);
+    var prevCompatible = new Array(n);
+
+    for (var i = 0; i < n; i++) {
+      var p = -1;
+      for (var j = i - 1; j >= 0; j--) {
+        if (sorted[j].endMin <= sorted[i].startMin) { p = j; break; }
+      }
+      prevCompatible[i] = p;
+    }
+
+    for (i = 1; i <= n; i++) {
+      var idx = i - 1;
+      var withIt = sorted[idx].weight + dp[prevCompatible[idx] + 1];
+      var withoutIt = dp[i - 1];
+      if (withIt > withoutIt) { dp[i] = withIt; take[i] = true; }
+      else { dp[i] = withoutIt; take[i] = false; }
+    }
+
+    var picked = [];
+    i = n;
+    while (i > 0) {
+      if (take[i]) {
+        picked.push(sorted[i - 1]);
+        i = prevCompatible[i - 1] + 1;
+      } else {
+        i = i - 1;
+      }
+    }
+    return picked.reverse();
+  }
+
+  function findConflictClusters(sets) {
+    var sorted = sets.slice().sort(function (a, b) { return a.startMin - b.startMin; });
+    var clusters = [];
+    var current = [];
+    var currentEnd = -1;
+    sorted.forEach(function (s) {
+      if (current.length && s.startMin < currentEnd) {
+        current.push(s);
+        currentEnd = Math.max(currentEnd, s.endMin);
+      } else {
+        if (current.length > 1) clusters.push(current);
+        current = [s];
+        currentEnd = s.endMin;
+      }
+    });
+    if (current.length > 1) clusters.push(current);
+    return clusters;
+  }
+
+  function fmtTime(hhmm) { return hhmm; }
+
+  function renderSchedule() {
+    var el = document.getElementById("schedule-content");
+
+    if (!state.schedule) {
+      el.innerHTML =
+        '<div class="empty-state">' +
+        "<h2>Set times aren’t out yet</h2>" +
+        "<p>Lost Lands usually drops the full set-time grid about a week before gates. Once it does, transcribe it here (or paste a CSV export if someone posts one) and this view will flag every conflict between your picks and build the best non-overlapping schedule per day, weighted toward your must-sees.</p>" +
+        '<div class="schedule-import">' +
+        '<textarea id="schedule-input" placeholder="Artist, Day, Stage, Start, End"></textarea>' +
+        '<div class="format-hint">Artist, Day, Stage, Start, End (24h HH:MM)\nExcision, Fri, Prehistoric Stage, 23:30, 01:00\nWooli, Fri, The Crater, 22:00, 23:15</div>' +
+        '<button class="btn" id="load-schedule-btn">Load schedule</button>' +
+        "</div></div>";
+
+      document.getElementById("load-schedule-btn").addEventListener("click", function () {
+        var text = document.getElementById("schedule-input").value;
+        var parsed = parseScheduleCSV(text);
+        if (!parsed) { alert("Couldn’t find any valid rows. Check the format against the example."); return; }
+        state.schedule = parsed;
+        save();
+        renderSchedule();
+        renderRoster();
+      });
+      return;
+    }
+
+    var favoritedNames = {};
+    Object.keys(state.interest).forEach(function (k) {
+      if (state.interest[k] > 0) favoritedNames[k] = state.interest[k];
+    });
+
+    var html = "";
+    var dayOrder = Object.keys(state.schedule);
+
+    dayOrder.forEach(function (day) {
+      var sets = state.schedule[day].filter(function (s) {
+        return favoritedNames[s.artist.trim().toLowerCase()];
+      }).map(function (s) {
+        var w = favoritedNames[s.artist.trim().toLowerCase()] === 2 ? 2 : 1;
+        return Object.assign({}, s, { weight: w });
+      });
+
+      if (!sets.length) return;
+
+      var picked = optimizeDay(sets);
+      var pickedSet = {};
+      picked.forEach(function (p) { pickedSet[p.artist + p.start] = true; });
+
+      var clusters = findConflictClusters(sets);
+
+      html += '<div class="day-block">';
+      html += '<div class="day-heading">' + day + ' <span>' + sets.length + ' of your picks play this day</span></div>';
+
+      if (clusters.length) {
+        html += '<div class="section-label">Conflicts to choose between</div>';
+        clusters.forEach(function (cluster) {
+          html += '<div class="conflict-group"><div class="conflict-label">Overlapping sets</div>';
+          cluster.sort(function (a, b) { return a.startMin - b.startMin; }).forEach(function (s) {
+            html += setRowHTML(s, pickedSet[s.artist + s.start]);
+          });
+          html += '</div>';
+        });
+      }
+
+      html += '<div class="section-label">Recommended schedule (maximizes your must-sees, zero overlaps)</div>';
+      picked.sort(function (a, b) { return a.startMin - b.startMin; }).forEach(function (s) {
+        html += setRowHTML(s, true);
+      });
+
+      html += '</div>';
+    });
+
+    if (!html) {
+      html = '<div class="empty-state"><h2>No favorited artists have set times yet</h2><p>Head to the Lineup tab and mark some artists as interested or must-see — they’ll show up here once the schedule covers them.</p></div>';
+    }
+
+    html += '<button class="btn ghost" id="reset-schedule-btn">Clear imported schedule</button>';
+    el.innerHTML = html;
+
+    var resetBtn = document.getElementById("reset-schedule-btn");
+    if (resetBtn) {
+      resetBtn.addEventListener("click", function () {
+        if (!confirm("Clear the imported set-time schedule? Your favorites stay saved.")) return;
+        state.schedule = null;
+        save();
+        renderSchedule();
+        renderRoster();
+      });
+    }
+  }
+
+  function setRowHTML(s, picked) {
+    var stageVar = STAGE_VAR[s.stage] || "--stage-tbd";
+    return '<div class="set-row" style="border-left-color:var(' + stageVar + ')">' +
+      '<span class="time">' + fmtTime(s.start) + '–' + fmtTime(s.end) + '</span>' +
+      '<span class="who">' + s.artist + '</span>' +
+      '<span class="where">' + s.stage + '</span>' +
+      (picked ? '<span class="badge">Pick</span>' : '') +
+      '</div>';
+  }
+
+  // ---------- tabs ----------
+  document.querySelectorAll(".tab").forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      document.querySelectorAll(".tab").forEach(function (t) { t.classList.remove("active"); });
+      document.querySelectorAll(".panel").forEach(function (p) { p.classList.remove("active"); });
+      tab.classList.add("active");
+      document.getElementById(tab.getAttribute("data-tab") + "-panel").classList.add("active");
+      if (tab.getAttribute("data-tab") === "schedule") renderSchedule();
+    });
+  });
+
+  renderCountdown();
+  renderDayFilter();
+  renderFilters();
+  renderRoster();
+  setInterval(renderCountdown, 60000);
+
+  // ---------- offline / install ----------
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    });
+  }
+
+  function updateOfflineBadge() {
+    var el = document.getElementById("offline-badge");
+    el.textContent = navigator.onLine ? "" : "Offline — showing your saved picks";
+  }
+  window.addEventListener("online", updateOfflineBadge);
+  window.addEventListener("offline", updateOfflineBadge);
+  updateOfflineBadge();
+})();
+</script>
+</body>
+</html>

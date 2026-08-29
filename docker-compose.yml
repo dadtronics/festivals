@@ -1,0 +1,11 @@
+services:
+  festivals:
+    build: .
+    container_name: festivals
+    restart: unless-stopped
+    networks:
+      - media
+
+networks:
+  media:
+    external: true

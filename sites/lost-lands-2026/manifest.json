@@ -1,0 +1,16 @@
+{
+  "name": "Lost Lands 2026",
+  "short_name": "Lost Lands",
+  "description": "Pick favorites from the Lost Lands lineup and avoid set conflicts.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#14110c",
+  "theme_color": "#14110c",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
