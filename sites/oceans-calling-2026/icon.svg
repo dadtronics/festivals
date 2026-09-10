@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#081b24"/>
+
+  <!-- sun -->
+  <circle cx="256" cy="180" r="54" fill="#ffb04a"/>
+
+  <!-- horizon waves, back to front -->
+  <path d="M0 250 Q64 230 128 250 T256 250 T384 250 T512 250 V320 H0 Z" fill="#0f3b4c"/>
+  <path d="M0 300 Q64 276 128 300 T256 300 T384 300 T512 300 V360 H0 Z" fill="#146378"/>
+  <path d="M0 348 Q64 322 128 348 T256 348 T384 348 T512 348 V420 H0 Z" fill="#1c8fa6"/>
+  <path d="M0 392 Q64 366 128 392 T256 392 T384 392 T512 392 V440 H0 Z" fill="#2ec4d6"/>
+</svg>

@@ -1,6 +1,6 @@
 // Bump this string every time index.html/manifest.json/icons change so phones
 // that already installed the app pick up the update next time they have signal.
-const CACHE_NAME = "lostlands-2026-v12";
+const CACHE_NAME = "oceanscalling-v15";
 
 const CORE_ASSETS = [
   "./",
@@ -9,7 +9,7 @@ const CORE_ASSETS = [
   "./icon.svg",
   "./icon-180.png",
   "./icon-512.png",
-  "./map.jpg"
+  "./map.webp"
 ];
 
 self.addEventListener("install", (event) => {

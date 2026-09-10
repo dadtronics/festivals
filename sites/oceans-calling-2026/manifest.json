@@ -1,0 +1,16 @@
+{
+  "name": "Oceans Calling",
+  "short_name": "Oceans Calling",
+  "description": "Pick favorites from the Oceans Calling lineup and avoid set conflicts.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#081b24",
+  "theme_color": "#081b24",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
