@@ -554,6 +554,36 @@
     height: auto;
   }
 
+  .install-instructions {
+    margin-top: 12px;
+  }
+
+  .install-instructions h3 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 16px 0 6px;
+  }
+
+  .install-instructions h3:first-child { margin-top: 0; }
+
+  .install-instructions ol {
+    margin: 0;
+    padding-left: 1.3em;
+    font-size: 0.88rem;
+    color: var(--text);
+  }
+
+  .install-instructions li { margin-bottom: 4px; }
+
+  .install-note {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin: 14px 0 0;
+    max-width: 60ch;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; }
   }
@@ -574,6 +604,7 @@
     <button class="tab active" data-tab="roster">Lineup</button>
     <button class="tab" data-tab="schedule">My Schedule</button>
     <button class="tab" data-tab="map">Map</button>
+    <button class="tab" data-tab="install">Install</button>
   </nav>
 
   <main>
@@ -602,10 +633,32 @@
     </section>
 
     <section id="map-panel" class="panel">
-      <p class="map-caption">Most recent published festival map (2024 edition) — 2026 layout may shift; Excision's team usually drops the current map about a week out via the Lost Lands app.</p>
+      <p class="map-caption">Most recent published festival map (2025 edition) — no 2026 map yet. For 2026, Excision's team has said The Crater is expanding again, Quiet Camping is moving, there's a new central 24-hour shower, and North Glamping is getting bigger, so the layout will shift some. 2026 maps typically don't drop until 4-ish days before gates via Instagram and the Lost Lands app — check back closer to Sept 18.</p>
       <div class="map-wrap">
         <img src="map.jpg" alt="Lost Lands festival grounds map showing Forest Stage, Subsidia Stage, Raptor Alley, Wompy Woods, The Crater, and Prehistoric Stage" loading="lazy">
       </div>
+    </section>
+
+    <section id="install-panel" class="panel">
+      <details class="add-artists" open>
+        <summary>Install on your phone (works offline once added)</summary>
+        <div class="install-instructions">
+          <h3>iPhone</h3>
+          <ol>
+            <li>Open this page in Safari.</li>
+            <li>Tap the <b>•••</b> button next to the address bar (on older iPhones, tap the Share button at the bottom instead).</li>
+            <li>Tap <b>Share</b>, then scroll down and tap <b>Add to Home Screen</b> (tap <b>View More</b> first if you don't see it).</li>
+            <li>Leave <b>Open as Web App</b> on, then tap <b>Add</b>.</li>
+          </ol>
+          <h3>Android</h3>
+          <ol>
+            <li>Open this page in Chrome.</li>
+            <li>Tap the <b>⋮</b> menu in the top right.</li>
+            <li>Tap <b>Add to Home screen</b> (or <b>Install app</b> if Chrome offers it directly), then confirm.</li>
+          </ol>
+          <p class="install-note">Pick your favorites from the home-screen app itself, not the browser tab — the two don't share saved picks. Then, while you still have signal, open the app once and tap through Lineup, My Schedule, and Map so everything's cached for when service at the venue gets spotty.</p>
+        </div>
+      </details>
     </section>
   </main>
 
