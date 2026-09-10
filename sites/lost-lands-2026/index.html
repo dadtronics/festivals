@@ -490,6 +490,28 @@
     margin: 18px 0 8px;
   }
 
+  .tolerance-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    border-radius: 3px;
+    margin-bottom: 20px;
+  }
+
+  .tolerance-row b { color: var(--accent); font-weight: 500; }
+
+  .tolerance-row input[type="range"] {
+    accent-color: var(--accent);
+    flex: 0 0 160px;
+  }
+
   .walk-badge {
     display: flex;
     align-items: center;
@@ -914,12 +936,13 @@
       var raw = localStorage.getItem(STORAGE_KEY);
       if (raw) return JSON.parse(raw);
     } catch (e) {}
-    return { interest: {}, customArtists: [], schedule: null };
+    return { interest: {}, customArtists: [], schedule: null, overlapTolerance: 0 };
   }
 
   var state = loadState();
   if (!state.interest) state.interest = {};
   if (!state.customArtists) state.customArtists = [];
+  if (typeof state.overlapTolerance !== "number") state.overlapTolerance = 0;
 
   function save() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
@@ -1161,7 +1184,11 @@
   }
 
   // ---------- weighted interval scheduling ----------
-  function optimizeDay(sets) {
+  // `tolerance` (minutes) lets two sets overlap by up to that much and still
+  // count as compatible — e.g. leaving one set a few minutes early to catch
+  // the start of a back-to-back pick on another stage.
+  function optimizeDay(sets, tolerance) {
+    tolerance = tolerance || 0;
     var sorted = sets.slice().sort(function (a, b) { return a.endMin - b.endMin; });
     var n = sorted.length;
     var dp = new Array(n + 1).fill(0);
@@ -1171,7 +1198,7 @@
     for (var i = 0; i < n; i++) {
       var p = -1;
       for (var j = i - 1; j >= 0; j--) {
-        if (sorted[j].endMin <= sorted[i].startMin) { p = j; break; }
+        if (sorted[j].endMin - tolerance <= sorted[i].startMin) { p = j; break; }
       }
       prevCompatible[i] = p;
     }
@@ -1197,13 +1224,14 @@
     return picked.reverse();
   }
 
-  function findConflictClusters(sets) {
+  function findConflictClusters(sets, tolerance) {
+    tolerance = tolerance || 0;
     var sorted = sets.slice().sort(function (a, b) { return a.startMin - b.startMin; });
     var clusters = [];
     var current = [];
     var currentEnd = -1;
     sorted.forEach(function (s) {
-      if (current.length && s.startMin < currentEnd) {
+      if (current.length && s.startMin < currentEnd - tolerance) {
         current.push(s);
         currentEnd = Math.max(currentEnd, s.endMin);
       } else {
@@ -1265,8 +1293,14 @@
       if (state.interest[k] > 0) favoritedNames[k] = state.interest[k];
     });
 
-    var html = "";
+    var tolerance = state.overlapTolerance;
+    var html =
+      '<div class="tolerance-row">' +
+      '<label for="overlap-tolerance">Allow overlaps up to <b id="overlap-tolerance-value">' + tolerance + '</b> min</label>' +
+      '<input type="range" id="overlap-tolerance" min="0" max="20" step="1" value="' + tolerance + '">' +
+      '</div>';
     var dayOrder = DAY_ORDER.filter(function (d) { return scheduleData[d] && scheduleData[d].length; });
+    var anyPicks = false;
 
     dayOrder.forEach(function (day) {
       var sets = scheduleData[day].filter(function (s) {
@@ -1277,12 +1311,13 @@
       });
 
       if (!sets.length) return;
+      anyPicks = true;
 
-      var picked = optimizeDay(sets);
+      var picked = optimizeDay(sets, tolerance);
       var pickedSet = {};
       picked.forEach(function (p) { pickedSet[p.artist + p.start] = true; });
 
-      var clusters = findConflictClusters(sets);
+      var clusters = findConflictClusters(sets, tolerance);
       var dayLabel = DAY_META[day] ? DAY_META[day].label : day;
 
       html += '<div class="day-block">';
@@ -1309,8 +1344,8 @@
       html += '</div>';
     });
 
-    if (!html) {
-      html = '<div class="empty-state"><h2>No favorited artists have set times yet</h2><p>Head to the Lineup tab and mark some artists as interested or must-see — they’ll show up here once the schedule covers them.</p></div>';
+    if (!anyPicks) {
+      html += '<div class="empty-state"><h2>No favorited artists have set times yet</h2><p>Head to the Lineup tab and mark some artists as interested or must-see — they’ll show up here once the schedule covers them.</p></div>';
     }
 
     html += '<details class="add-artists"><summary>' +
@@ -1323,6 +1358,16 @@
 
     el.innerHTML = html;
     wireImportBox("schedule-input", "load-schedule-btn");
+
+    var toleranceInput = document.getElementById("overlap-tolerance");
+    toleranceInput.addEventListener("input", function () {
+      document.getElementById("overlap-tolerance-value").textContent = toleranceInput.value;
+    });
+    toleranceInput.addEventListener("change", function () {
+      state.overlapTolerance = parseInt(toleranceInput.value, 10) || 0;
+      save();
+      renderSchedule();
+    });
 
     var resetBtn = document.getElementById("reset-schedule-btn");
     if (resetBtn) {
@@ -1339,10 +1384,17 @@
   function walkBadgeHTML(prev, next) {
     if (prev.stage === next.stage) return "";
     var gap = next.startMin - prev.endMin;
-    var tight = gap < WALK_ESTIMATE_MIN;
+    var msg = prev.stage + " &rarr; " + next.stage + " &middot; ~" + WALK_ESTIMATE_MIN + " min walk (est.)";
+    var tight;
+    if (gap < 0) {
+      tight = true;
+      msg += " &middot; overlaps by " + (-gap) + " min &mdash; you'll miss part of one set";
+    } else {
+      tight = gap < WALK_ESTIMATE_MIN;
+      msg += " &middot; " + gap + " min gap";
+      if (tight) msg += " &mdash; cutting it close";
+    }
     var cls = "walk-badge" + (tight ? " tight" : "");
-    var msg = prev.stage + " &rarr; " + next.stage + " &middot; ~" + WALK_ESTIMATE_MIN + " min walk (est.) &middot; " + gap + " min gap";
-    if (tight) msg += " &mdash; cutting it close";
     return '<div class="' + cls + '">' + msg + '</div>';
   }
 
