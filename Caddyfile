@@ -6,8 +6,10 @@
 	# The service worker and app shell should always revalidate so phones
 	# pick up updates promptly. The service worker does its own offline
 	# caching client-side — this is just about the HTTP layer not adding a
-	# second, harder-to-bust cache on top of it.
-	@no_cache path *.js *.html *manifest.json
+	# second, harder-to-bust cache on top of it. Grounds maps are included
+	# since they get replaced in place (same filename, new content) as
+	# festivals publish updated ones.
+	@no_cache path *.js *.html *manifest.json *.jpg *.jpeg *.webp
 	header @no_cache Cache-Control "no-cache"
 
 	@icons path *.png *.svg

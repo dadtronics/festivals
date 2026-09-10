@@ -35,7 +35,11 @@ self.addEventListener("fetch", (event) => {
 
   event.respondWith(
     caches.match(event.request).then((cached) => {
-      const network = fetch(event.request)
+      // "reload" bypasses the browser's own HTTP cache so this revalidation
+      // check is meaningful even if a server response header lapses -
+      // otherwise a stale HTTP-cached response could get handed right back
+      // to us and re-stored, silently defeating the point of this fetch.
+      const network = fetch(event.request, { cache: "reload" })
         .then((response) => {
           if (response && response.ok) {
             const copy = response.clone();
