@@ -682,6 +682,11 @@
   });
 
   var LEVEL_LABEL = ["Add", "Interested ★", "Must-see ★★"];
+  // Must-see should always win a slot over any pile of merely-interested
+  // picks, not just edge them out by a point or two - otherwise two
+  // "interested" sets that happen to fit back-to-back can outweigh (or tie,
+  // and win the tie-break) a single must-see they conflict with.
+  var LEVEL_WEIGHT = [0, 1, 1000];
 
   // Official set-time grid from the festival's published Earth/Fire/Air/Water
   // schedule graphics. Loaded as the default schedule below on every load —
@@ -1190,7 +1195,7 @@
       var sets = state.schedule[day].filter(function (s) {
         return favoritedNames[s.artist.trim().toLowerCase()];
       }).map(function (s) {
-        var w = favoritedNames[s.artist.trim().toLowerCase()] === 2 ? 2 : 1;
+        var w = LEVEL_WEIGHT[favoritedNames[s.artist.trim().toLowerCase()]];
         return Object.assign({}, s, { weight: w });
       });
 
