@@ -584,6 +584,10 @@
     max-width: 60ch;
   }
 
+  .install-instructions a {
+    color: var(--accent);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; }
   }
@@ -657,6 +661,12 @@
             <li>Tap <b>Add to Home screen</b> (or <b>Install app</b> if Chrome offers it directly), then confirm.</li>
           </ol>
           <p class="install-note">Pick your favorites from the home-screen app itself, not the browser tab — the two don't share saved picks. Then, while you still have signal, open the app once and tap through Lineup, My Schedule, and Map so everything's cached for when service at the venue gets spotty.</p>
+        </div>
+      </details>
+      <details class="add-artists">
+        <summary>Need help or found a bug?</summary>
+        <div class="install-instructions">
+          <p class="install-note">This planner is open source — <a href="https://github.com/dadtronics/festivals" target="_blank" rel="noopener">view the code, report an issue, or fork it for your own festival on GitHub</a>.</p>
         </div>
       </details>
     </section>
