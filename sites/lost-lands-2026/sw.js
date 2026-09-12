@@ -1,6 +1,6 @@
 // Bump this string every time index.html/manifest.json/icons change so phones
 // that already installed the app pick up the update next time they have signal.
-const CACHE_NAME = "lostlands-2026-v19";
+const CACHE_NAME = "lostlands-2026-v20";
 
 const CORE_ASSETS = [
   "./",
