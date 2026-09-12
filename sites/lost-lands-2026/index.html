@@ -264,9 +264,8 @@
   .artist-card:hover { border-color: var(--accent); }
 
   .artist-card.interest-1 { border-color: var(--text-muted); }
-  .artist-card.interest-2 { border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); }
-  .artist-card.interest-3 { border-color: var(--accent); }
-  .artist-card.interest-4 { border-color: var(--accent); box-shadow: var(--shadow); }
+  .artist-card.interest-2 { border-color: var(--accent); }
+  .artist-card.interest-3 { border-color: var(--accent); box-shadow: var(--shadow); }
 
   .artist-main { min-width: 0; }
 
@@ -305,33 +304,24 @@
     margin-top: 2px;
   }
 
-  .tier-picker {
-    display: flex;
-    gap: 6px;
-    flex-shrink: 0;
-  }
-
   .tier-btn {
     background: none;
     border: 1px solid var(--border);
     color: var(--text-muted);
     font-family: var(--font-mono);
     font-size: 0.75rem;
-    padding: 9px 11px;
+    padding: 9px 12px;
     border-radius: 3px;
     cursor: pointer;
-    line-height: 1;
-    min-width: 34px;
+    flex-shrink: 0;
+    min-width: 92px;
     min-height: 34px;
     text-align: center;
   }
 
-  .tier-btn:hover { border-color: var(--accent); color: var(--text); }
-
-  .tier-btn.active[data-level="1"] { color: var(--text); border-color: var(--text-muted); background: var(--surface-2); }
-  .tier-btn.active[data-level="2"] { color: var(--text); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 30%, var(--surface)); font-weight: 500; }
-  .tier-btn.active[data-level="3"] { color: var(--text); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 55%, var(--surface)); font-weight: 500; }
-  .tier-btn.active[data-level="4"] { color: var(--accent-ink); border-color: var(--accent); background: var(--accent); font-weight: 600; }
+  .tier-btn[data-level="1"] { color: var(--text); border-color: var(--text-muted); }
+  .tier-btn[data-level="2"] { color: var(--text); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 35%, var(--surface)); font-weight: 500; }
+  .tier-btn[data-level="3"] { color: var(--accent-ink); border-color: var(--accent); background: var(--accent); font-weight: 600; }
 
   /* ---------- add artists ---------- */
   .add-artists {
@@ -486,9 +476,8 @@
     border-radius: 2px;
     flex-shrink: 0;
   }
-  .set-row .tier-tag[data-level="2"] { color: var(--text); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 30%, var(--surface)); }
-  .set-row .tier-tag[data-level="3"] { color: var(--text); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 55%, var(--surface)); }
-  .set-row .tier-tag[data-level="4"] { color: var(--accent-ink); border-color: var(--accent); background: var(--accent); font-weight: 600; }
+  .set-row .tier-tag[data-level="2"] { color: var(--text); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 35%, var(--surface)); }
+  .set-row .tier-tag[data-level="3"] { color: var(--accent-ink); border-color: var(--accent); background: var(--accent); font-weight: 600; }
 
   .set-row.picked { outline: 1px solid var(--accent); }
   .set-row .badge {
@@ -1028,14 +1017,14 @@
 
   // Priority tiers, low to high. A higher tier should always win a slot over
   // any pile of lower-tier picks, not just edge them out by a point or two -
-  // otherwise a stack of Low/Medium sets that happen to fit back-to-back
-  // could outweigh (or tie, and win the tie-break) a single Must-see they
-  // conflict with. Weights grow geometrically (base 1000, comfortably more
-  // than any realistic same-tier pile in a single day) to guarantee that.
-  var LEVEL_LABEL = ["Add", "Low", "Medium", "High", "Must-see"];
-  var LEVEL_BTN_TEXT = ["", "L", "M", "H", "★"];
-  var LEVEL_TAG_TEXT = ["", "Low", "Med", "High", "Must"];
-  var LEVEL_WEIGHT = [0, 1, 1000, 1000000, 1000000000];
+  // otherwise a stack of Interested/Prefer sets that happen to fit
+  // back-to-back could outweigh (or tie, and win the tie-break) a single
+  // Must-see they conflict with. Weights grow geometrically (base 1000,
+  // comfortably more than any realistic same-tier pile in a single day) to
+  // guarantee that.
+  var LEVEL_LABEL = ["Add", "Interested", "Prefer", "Must-see"];
+  var LEVEL_TAG_TEXT = ["", "Int", "Pref", "Must"];
+  var LEVEL_WEIGHT = [0, 1, 1000, 1000000];
 
   // ---------- state ----------
   function loadState() {
@@ -1052,9 +1041,10 @@
   if (typeof state.overlapTolerance !== "number") state.overlapTolerance = 0;
 
   // One-time migration from the old 3-level scale (0 Add, 1 Interested,
-  // 2 Must-see) to the new 5-level scale (0 Add, 1 Low .. 4 Must-see).
-  // Old Must-see maps to new Must-see; old Interested has no clear tier to
-  // land on, so it defaults to Medium and people can re-triage from there.
+  // 2 Must-see) to a since-abandoned 5-level scale (0 Add, 1 Low .. 4
+  // Must-see). Old Must-see maps to new Must-see; old Interested has no
+  // clear tier to land on, so it defaults to Medium and people can
+  // re-triage from there.
   if (!state.tierMigrated) {
     Object.keys(state.interest).forEach(function (k) {
       var v = state.interest[k];
@@ -1062,6 +1052,20 @@
       else if (v === 1) state.interest[k] = 2;
     });
     state.tierMigrated = true;
+    save();
+  }
+
+  // One-time migration from the 5-level scale above down to the current
+  // 4-level scale (0 Add, 1 Interested, 2 Prefer, 3 Must-see) - collapsing
+  // the old Medium/High middle rungs into a single Prefer, keeping the old
+  // bottom (Low) and top (Must-see) ranks as they were.
+  if (!state.tier3Migrated) {
+    var TIER5_TO_TIER3 = { 1: 1, 2: 2, 3: 2, 4: 3 };
+    Object.keys(state.interest).forEach(function (k) {
+      var v = state.interest[k];
+      if (TIER5_TO_TIER3[v] !== undefined) state.interest[k] = TIER5_TO_TIER3[v];
+    });
+    state.tier3Migrated = true;
     save();
   }
 
@@ -1186,13 +1190,13 @@
     var q = document.getElementById("search").value.trim().toLowerCase();
     var artists = allArtists();
 
-    var tierCounts = [0, 0, 0, 0, 0];
+    var tierCounts = [0, 0, 0, 0];
     artists.forEach(function (a) {
       tierCounts[state.interest[a.name.toLowerCase()] || 0]++;
     });
     document.getElementById("roster-stats").innerHTML =
-      artists.length + " acts &middot; <b>" + tierCounts[4] + "</b> must-see &middot; <b>" + tierCounts[3] +
-      "</b> high &middot; <b>" + tierCounts[2] + "</b> medium &middot; <b>" + tierCounts[1] + "</b> low";
+      artists.length + " acts &middot; <b>" + tierCounts[3] + "</b> must-see &middot; <b>" + tierCounts[2] +
+      "</b> prefer &middot; <b>" + tierCounts[1] + "</b> interested";
 
     grid.innerHTML = "";
     artists.forEach(function (a) {
@@ -1202,7 +1206,7 @@
 
       if (q && name.toLowerCase().indexOf(q) === -1) return;
       if (currentFilter === "picked" && lvl === 0) return;
-      if (currentFilter === "must" && lvl !== 4) return;
+      if (currentFilter === "must" && lvl !== 3) return;
       if (currentDay !== "all" && a.day !== currentDay) return;
 
       var sched = artistStageInfo(name);
@@ -1243,27 +1247,19 @@
 
       card.appendChild(main);
 
-      var picker = document.createElement("div");
-      picker.className = "tier-picker";
-      for (var t = 1; t <= 4; t++) {
-        (function (tier) {
-          var btn = document.createElement("button");
-          btn.className = "tier-btn" + (lvl === tier ? " active" : "");
-          btn.type = "button";
-          btn.setAttribute("data-level", String(tier));
-          btn.title = LEVEL_LABEL[tier];
-          btn.setAttribute("aria-label", LEVEL_LABEL[tier]);
-          btn.textContent = LEVEL_BTN_TEXT[tier];
-          btn.addEventListener("click", function () {
-            state.interest[key] = (lvl === tier) ? 0 : tier;
-            save();
-            renderRoster();
-            if (document.getElementById("schedule-panel").classList.contains("active")) renderSchedule();
-          });
-          picker.appendChild(btn);
-        })(t);
-      }
-      card.appendChild(picker);
+      var btn = document.createElement("button");
+      btn.className = "tier-btn";
+      btn.type = "button";
+      btn.setAttribute("data-level", String(lvl));
+      btn.textContent = LEVEL_LABEL[lvl];
+      btn.addEventListener("click", function () {
+        var next = (lvl + 1) % 4;
+        state.interest[key] = next;
+        save();
+        renderRoster();
+        if (document.getElementById("schedule-panel").classList.contains("active")) renderSchedule();
+      });
+      card.appendChild(btn);
 
       grid.appendChild(card);
     });
